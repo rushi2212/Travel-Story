@@ -125,7 +125,7 @@ app.post("/image-upload", upload.single("image"), async (req, res) => {
         .json({ error: true, message: "No image uploaded" });
     }
 
-    const imageUrl = `http://localhost:3000/uploads/${req.file.filename}`;
+    const imageUrl = `https://travel-story-vkur.onrender.com/uploads/${req.file.filename}`;
     res.status(201).json({ imageUrl });
   } catch (error) {
     res.status(500).json({ error: true, message: error.message });
