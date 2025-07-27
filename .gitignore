@@ -38,8 +38,6 @@ yarn-error.log*
 ehthumbs.db
 Thumbs.db
 
-# Uploads directory (backend)
-backend/uploads/
 
 # Dependency files
 package-lock.json
