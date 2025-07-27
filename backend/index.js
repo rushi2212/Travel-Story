@@ -356,7 +356,11 @@ app.get("/travel-stories/filter", authenticateToken, async (req, res) => {
     res.status(500).json({ error: true, message: error.message });
   }
 });
-
+app.get("/", async (req, res) => {
+  res.send(
+    "Hello"
+  )
+});
 app.listen(PORT, () => {
   console.log(`Server is running on port http://localhost:${PORT}`);
 });
