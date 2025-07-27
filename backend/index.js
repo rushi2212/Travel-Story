@@ -6,6 +6,7 @@ const cors = require("cors");
 const upload = require("./multer");
 const fs = require("fs");
 const path = require("path");
+const { cloudinary } = require("./cloudinary");
 
 require("dotenv").config();
 const PORT = process.env.PORT || 5000;
@@ -26,7 +27,6 @@ mongoose
   })
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("MongoDB connection error:", err));
-
 
 //create account
 app.post("/create-account", async (req, res) => {
@@ -126,8 +126,8 @@ app.post("/image-upload", upload.single("image"), async (req, res) => {
         .json({ error: true, message: "No image uploaded" });
     }
 
-    const imageUrl = `https://travel-story-vkur.onrender.com/uploads/${req.file.filename}`;
-    res.status(201).json({ imageUrl });
+    // Cloudinary already gives us the URL in req.file.path
+    res.status(201).json({ imageUrl: req.file.path });
   } catch (error) {
     res.status(500).json({ error: true, message: error.message });
   }
@@ -144,28 +144,17 @@ app.delete("/delete-image", async (req, res) => {
   }
 
   try {
-    //extract the filename from yhe imageUrl
-    const filename = path.basename(imageUrl);
+    // Extract public ID from Cloudinary URL
+    const publicId = imageUrl.split("/").pop().split(".")[0];
 
-    //Define the file path
-    const filePath = path.join(__dirname, "uploads", filename);
+    // Delete image from Cloudinary
+    await cloudinary.uploader.destroy(`travel-stories/${publicId}`);
 
-    // check if the file exists
-    if (fs.existsSync(filePath)) {
-      //Delete the file from the uploads folder
-      fs.unlinkSync(filePath);
-      res.status(200).json("image deleted successfully");
-    } else {
-      res.status(200).json({ error: true, message: "Image not found" });
-    }
+    res.status(200).json({ message: "Image deleted successfully" });
   } catch (error) {
-    res.status(200).json({ error: true, message: error.message });
+    res.status(500).json({ error: true, message: error.message });
   }
 });
-
-// Serve static files from the uploads and assets dictionary
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-app.use("/assets", express.static(path.join(__dirname, "uploads")));
 
 //Add Travel Story
 app.post("/add-travel-story", authenticateToken, async (req, res) => {
@@ -238,7 +227,8 @@ app.post("/edit-story/:id", authenticateToken, async (req, res) => {
         .status(404)
         .json({ error: true, message: "Travel story not found" });
     }
-    const placeholderImgUrl = "https://travel-story-vkur.onrender.com/assets/placeholder.png";
+    const placeholderImgUrl =
+      "https://travel-story-vkur.onrender.com/assets/placeholder.png";
 
     travelStory.title = title;
     travelStory.story = story;
@@ -258,7 +248,6 @@ app.delete("/delete-story/:id", authenticateToken, async (req, res) => {
   const { userId } = req.user;
 
   try {
-    //Find the travel story by id and ensure it belongs to the authenticated user
     const travelStory = await TravelStory.findOne({ _id: id, userId: userId });
 
     if (!travelStory) {
@@ -267,23 +256,20 @@ app.delete("/delete-story/:id", authenticateToken, async (req, res) => {
         .json({ error: true, message: "Travel story not found" });
     }
 
-    //Delete the travel story from the database
-    await travelStory.deleteOne({ _id: id, userId: userId });
-
-    //Extract the filename from the imageUrl
-    const imageUrl = travelStory.imageUrl;
-    const filename = path.basename(imageUrl);
-
-    //Define the path
-    const filePath = path.join(__dirname, "uploads", filename);
-
-    //Delete the image file from the uploads folder
-    fs.unlink(filePath, (err) => {
-      if (err) {
-        console.error("Failed  to delete image file", err);
+    // Delete the image from Cloudinary if it's not the placeholder
+    const placeholderUrl =
+      "https://travel-story-vkur.onrender.com/assets/placeholder.png";
+    if (travelStory.imageUrl !== placeholderUrl) {
+      try {
+        const publicId = travelStory.imageUrl.split("/").pop().split(".")[0];
+        await cloudinary.uploader.destroy(`travel-stories/${publicId}`);
+      } catch (err) {
+        console.error("Failed to delete image from Cloudinary:", err);
       }
-    });
-    res.status(200).json({ message: "Travel story deleted sucessfully" });
+    }
+
+    await travelStory.deleteOne({ _id: id, userId: userId });
+    res.status(200).json({ message: "Travel story deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: true, message: error.message });
   }
@@ -357,9 +343,7 @@ app.get("/travel-stories/filter", authenticateToken, async (req, res) => {
   }
 });
 app.get("/", async (req, res) => {
-  res.send(
-    "Hi"
-  )
+  res.send("Hi");
 });
 app.listen(PORT, () => {
   console.log(`Server is running on port http://localhost:${PORT}`);
