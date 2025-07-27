@@ -358,7 +358,7 @@ app.get("/travel-stories/filter", authenticateToken, async (req, res) => {
 });
 app.get("/", async (req, res) => {
   res.send(
-    "Hello"
+    "Hi"
   )
 });
 app.listen(PORT, () => {
