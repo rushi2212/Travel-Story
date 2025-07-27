@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../utils/axiosInstance";
+import  "../../assets/placeholder.png"
 
 const Home = () => {
   const [stories, setStories] = useState([]);
@@ -177,8 +178,6 @@ const Home = () => {
           }
         );
         imageUrl = imageResponse.data.imageUrl;
-      } else if (!imageUrl && !isEditMode) {
-        imageUrl = "http://localhost:3000/assets/placeholder.png";
       }
 
       const payload = {
@@ -669,7 +668,7 @@ const Home = () => {
                       className="w-full h-full object-cover"
                       onError={(e) =>
                         (e.target.src =
-                          "http://localhost:3000/assets/placeholder.png")
+                          "./assets/placeholder.png")
                       }
                     />
                     <button
@@ -892,7 +891,7 @@ const Home = () => {
                       className="w-full h-64 object-cover"
                       onError={(e) =>
                         (e.target.src =
-                          "http://localhost:3000/assets/placeholder.png")
+                          "./assets/placeholder.png")
                       }
                     />
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
