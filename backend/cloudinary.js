@@ -15,7 +15,8 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: "travel-stories",
-    allowed_formats: ["jpg", "jpeg", "png", "webp"],
+    allowed_formats: ["jpg", "jpeg", "png", "webp"], // Make sure webp is here
+    format: "webp", // Optional: convert all uploads to WebP
     transformation: [{ width: 500, height: 500, crop: "limit" }],
   },
 });
