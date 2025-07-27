@@ -17,6 +17,7 @@ import {
   ChevronLeft,
   ChevronRight,
   CalendarDays,
+  Menu,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../utils/axiosInstance";
@@ -47,6 +48,7 @@ const Home = () => {
     fullName: "",
     email: "",
   });
+  const [showCalendar, setShowCalendar] = useState(false);
   const navigate = useNavigate();
 
   // Fetch all stories on component mount
@@ -349,7 +351,7 @@ const Home = () => {
 
     // Empty cells for days before month starts
     for (let i = 0; i < firstDay; i++) {
-      days.push(<div key={`empty-${i}`} className="h-8"></div>);
+      days.push(<div key={`empty-${i}`} className="h-6 sm:h-8"></div>);
     }
 
     // Days of the month
@@ -371,7 +373,7 @@ const Home = () => {
       days.push(
         <div
           key={day}
-          className={`h-8 flex items-center justify-center text-xs font-medium cursor-pointer rounded-lg transition-all relative ${
+          className={`h-6 sm:h-8 flex items-center justify-center text-xs font-medium cursor-pointer rounded-lg transition-all relative ${
             isToday
               ? "bg-blue-500 text-white shadow-sm"
               : hasStory
@@ -394,14 +396,25 @@ const Home = () => {
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
-        <div className="flex items-center justify-between px-6 py-4">
+        <div className="flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center">
-            <h1 className="text-2xl font-bold text-teal-500 italic">
+            <h1 className="text-xl sm:text-2xl font-bold text-teal-500 italic">
               Travel Story
             </h1>
           </div>
 
-          <div className="flex-1 max-w-md mx-8 relative">
+          {/* Mobile Calendar Toggle */}
+          <div className="lg:hidden">
+            <button
+              onClick={() => setShowCalendar(!showCalendar)}
+              className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <CalendarDays size={20} />
+            </button>
+          </div>
+
+          {/* Search Bar - Hidden on mobile, shown on tablet+ */}
+          <div className="hidden sm:block flex-1 max-w-md mx-4 lg:mx-8 relative">
             <div className="relative">
               <Search
                 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
@@ -437,9 +450,9 @@ const Home = () => {
 
             {/* Enhanced Date Filter Dropdown */}
             {showDateFilter && (
-              <div className="absolute top-16 left-0 right-0 bg-white border rounded-xl shadow-xl p-6 z-20 max-w-md">
+              <div className="absolute top-16 left-0 right-0 bg-white border rounded-xl shadow-xl p-4 sm:p-6 z-20 max-w-md">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center">
                     <CalendarDays size={18} className="mr-2 text-blue-500" />
                     Filter by Date
                   </h3>
@@ -552,17 +565,14 @@ const Home = () => {
             )}
           </div>
 
-          {/* Enhanced User Info Display */}
-          {/* Enhanced User Info Display */}
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-sm">
+          {/* User Info Display */}
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-xs sm:text-sm shadow-sm">
                 {getUserInitials(userInfo.fullName)}
               </div>
-              <div className="text-right">
+              <div className="text-right hidden sm:block">
                 <div className="text-sm font-bold text-gray-900">
-                  {" "}
-                  {/* Changed font-semibold to font-bold */}
                   {userInfo.fullName}
                 </div>
                 <button
@@ -579,15 +589,254 @@ const Home = () => {
             </div>
           </div>
         </div>
+
+        {/* Mobile Search Bar */}
+        <div className="sm:hidden px-3 pb-3">
+          <div className="relative">
+            <Search
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              size={18}
+            />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search stories..."
+              className="w-full pl-10 pr-16 py-2.5 bg-gray-50 border-0 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-12 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-100 rounded"
+              >
+                <X size={14} className="text-gray-400" />
+              </button>
+            )}
+            <button
+              onClick={() => setShowDateFilter(!showDateFilter)}
+              className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-1.5 hover:bg-gray-100 rounded transition-colors ${
+                showDateFilter || dateFilter.startDate || dateFilter.endDate
+                  ? "bg-blue-100 text-blue-600"
+                  : "text-gray-400"
+              }`}
+              title="Date Filter"
+            >
+              <CalendarDays size={16} />
+            </button>
+          </div>
+
+          {/* Mobile Date Filter Dropdown */}
+          {showDateFilter && (
+            <div className="absolute left-3 right-3 top-full bg-white border rounded-xl shadow-xl p-4 z-20 mt-2">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-base font-semibold text-gray-900 flex items-center">
+                  <CalendarDays size={16} className="mr-2 text-blue-500" />
+                  Filter by Date
+                </h3>
+                <button
+                  onClick={() => setShowDateFilter(false)}
+                  className="p-1 hover:bg-gray-100 rounded"
+                >
+                  <X size={16} className="text-gray-400" />
+                </button>
+              </div>
+
+              {/* Quick Filter Options */}
+              <div className="mb-4">
+                <p className="text-sm font-medium text-gray-700 mb-2">
+                  Quick Filters
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => setQuickDateFilter(7)}
+                    className="px-2 py-2 text-sm bg-gray-50 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
+                  >
+                    Last 7 days
+                  </button>
+                  <button
+                    onClick={() => setQuickDateFilter(30)}
+                    className="px-2 py-2 text-sm bg-gray-50 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
+                  >
+                    Last 30 days
+                  </button>
+                  <button
+                    onClick={() => setQuickDateFilter(90)}
+                    className="px-2 py-2 text-sm bg-gray-50 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
+                  >
+                    Last 3 months
+                  </button>
+                  <button
+                    onClick={() => setQuickDateFilter(365)}
+                    className="px-2 py-2 text-sm bg-gray-50 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
+                  >
+                    Last year
+                  </button>
+                </div>
+              </div>
+
+              {/* Custom Date Range */}
+              <div className="mb-4">
+                <p className="text-sm font-medium text-gray-700 mb-2">
+                  Custom Range
+                </p>
+                <div className="space-y-2">
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1 font-medium">
+                      From Date
+                    </label>
+                    <input
+                      type="date"
+                      value={dateFilter.startDate}
+                      onChange={(e) =>
+                        setDateFilter((prev) => ({
+                          ...prev,
+                          startDate: e.target.value,
+                        }))
+                      }
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1 font-medium">
+                      To Date
+                    </label>
+                    <input
+                      type="date"
+                      value={dateFilter.endDate}
+                      onChange={(e) =>
+                        setDateFilter((prev) => ({
+                          ...prev,
+                          endDate: e.target.value,
+                        }))
+                      }
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-between items-center pt-3 border-t border-gray-100">
+                <button
+                  onClick={clearFilters}
+                  className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
+                >
+                  Clear All
+                </button>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => setShowDateFilter(false)}
+                    className="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => setShowDateFilter(false)}
+                    className="px-3 py-2 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+                  >
+                    Apply
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </header>
 
-      <div className="flex">
+      <div className="flex flex-col lg:flex-row">
+        {/* Mobile Calendar Overlay */}
+        {showCalendar && (
+          <div className="lg:hidden fixed inset-0 bg-black/50 z-30 flex items-center justify-center p-4">
+            <div className="bg-white rounded-xl w-full max-w-sm shadow-2xl">
+              {/* Calendar Header */}
+              <div className="bg-gradient-to-r from-slate-700 to-slate-800 px-4 py-3 rounded-t-xl">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-white">
+                    {monthNames[currentDate.getMonth()]}{" "}
+                    {currentDate.getFullYear()}
+                  </h3>
+                  <div className="flex space-x-1">
+                    <button
+                      onClick={previousMonth}
+                      className="p-1.5 hover:bg-white/20 rounded transition-colors"
+                    >
+                      <ChevronLeft size={16} className="text-white" />
+                    </button>
+                    <button
+                      onClick={nextMonth}
+                      className="p-1.5 hover:bg-white/20 rounded transition-colors"
+                    >
+                      <ChevronRight size={16} className="text-white" />
+                    </button>
+                    <button
+                      onClick={() => setShowCalendar(false)}
+                      className="p-1.5 hover:bg-white/20 rounded transition-colors ml-2"
+                    >
+                      <X size={16} className="text-white" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Calendar Body */}
+              <div className="p-4">
+                {/* Week day headers */}
+                <div className="grid grid-cols-7 gap-1 mb-2">
+                  {weekDays.map((day) => (
+                    <div
+                      key={day}
+                      className="h-6 flex items-center justify-center text-xs font-semibold text-gray-600 bg-gray-50 rounded"
+                    >
+                      {day}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Calendar days */}
+                <div className="grid grid-cols-7 gap-1 h-48">
+                  {renderCalendar()}
+                </div>
+              </div>
+
+              {/* Calendar Footer */}
+              <div className="px-4 pb-4">
+                <div className="pt-3 border-t border-gray-100">
+                  <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
+                    <div className="flex items-center space-x-3">
+                      <div className="flex items-center space-x-1">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        <span>Today</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <div className="w-2 h-2 bg-teal-500 rounded-full"></div>
+                        <span>Stories</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {
+                      stories.filter((story) => {
+                        const storyDate = new Date(story.visitedDate);
+                        return (
+                          storyDate.getMonth() === currentDate.getMonth() &&
+                          storyDate.getFullYear() === currentDate.getFullYear()
+                        );
+                      }).length
+                    }{" "}
+                    stories this month
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Main Content */}
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-3 sm:p-6">
           {/* Error Message */}
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-6 flex justify-between items-center">
-              <span>{error}</span>
+            <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-4 sm:mb-6 flex justify-between items-center">
+              <span className="text-sm">{error}</span>
               <button
                 onClick={() => setError(null)}
                 className="text-red-600 hover:text-red-800"
@@ -599,14 +848,14 @@ const Home = () => {
 
           {/* Enhanced Filter Status */}
           {(searchQuery || dateFilter.startDate || dateFilter.endDate) && (
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 text-blue-800 px-5 py-4 rounded-xl mb-6 shadow-sm">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 text-blue-800 px-3 sm:px-5 py-3 sm:py-4 rounded-xl mb-4 sm:mb-6 shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+                <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
                   <div className="flex items-center space-x-2">
                     <Filter size={16} className="text-blue-600" />
-                    <span className="font-medium">Active Filters:</span>
+                    <span className="font-medium text-sm">Active Filters:</span>
                   </div>
-                  <div className="flex items-center space-x-3 text-sm">
+                  <div className="flex flex-wrap items-center gap-2 text-sm">
                     {searchQuery && (
                       <span className="bg-blue-100 px-2 py-1 rounded-md">
                         Search: "{searchQuery}"
@@ -627,7 +876,7 @@ const Home = () => {
                 </div>
                 <button
                   onClick={clearFilters}
-                  className="text-blue-600 hover:text-blue-800 text-sm font-medium underline transition-colors"
+                  className="text-blue-600 hover:text-blue-800 text-sm font-medium underline transition-colors self-start sm:self-auto"
                 >
                   Clear All Filters
                 </button>
@@ -637,23 +886,23 @@ const Home = () => {
 
           {/* Stories Grid */}
           {stories.length === 0 ? (
-            <div className="text-center py-20">
+            <div className="text-center py-12 sm:py-20">
               <div className="text-gray-400 mb-4">
-                <Camera size={48} className="mx-auto" />
+                <Camera size={36} sm:size={48} className="mx-auto" />
               </div>
-              <h3 className="text-lg font-medium text-gray-600 mb-2">
+              <h3 className="text-base sm:text-lg font-medium text-gray-600 mb-2">
                 {searchQuery || dateFilter.startDate || dateFilter.endDate
                   ? "No stories found matching your criteria"
                   : "Start creating your first Travel Story!"}
               </h3>
-              <p className="text-gray-500 mb-8">
+              <p className="text-sm sm:text-base text-gray-500 mb-6 sm:mb-8">
                 {searchQuery || dateFilter.startDate || dateFilter.endDate
                   ? "Try adjusting your search or date filters"
                   : "Click the + button to jot down your thoughts, ideas, and memories"}
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
               {/* Story Cards */}
               {stories.map((story) => (
                 <div
@@ -661,7 +910,7 @@ const Home = () => {
                   className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200"
                 >
                   {/* Story Image */}
-                  <div className="relative h-48">
+                  <div className="relative h-36 sm:h-48">
                     <img
                       src={story.imageUrl}
                       alt={story.title}
@@ -673,10 +922,10 @@ const Home = () => {
                       onClick={() =>
                         handleFavorite(story._id, story.isFavourite)
                       }
-                      className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
+                      className="absolute top-2 sm:top-3 right-2 sm:right-3 p-1.5 sm:p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
                     >
                       <Heart
-                        size={16}
+                        size={14}
                         className={
                           story.isFavourite
                             ? "text-red-500 fill-current"
@@ -687,42 +936,42 @@ const Home = () => {
                   </div>
 
                   {/* Story Content */}
-                  <div className="p-4">
-                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+                  <div className="p-3 sm:p-4">
+                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm sm:text-base">
                       {story.title}
                     </h3>
-                    <p className="text-sm text-gray-600 mb-3 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3 leading-relaxed">
                       {new Date(story.visitedDate).toLocaleDateString("en-US", {
                         day: "numeric",
                         month: "short",
                         year: "numeric",
                       })}
                     </p>
-                    <p className="text-gray-700 text-sm line-clamp-3 mb-4">
+                    <p className="text-gray-700 text-xs sm:text-sm line-clamp-3 mb-3 sm:mb-4">
                       {story.story}
                     </p>
 
                     {/* Location */}
-                    <div className="flex items-center text-teal-600 bg-teal-50 px-3 py-1 rounded-full text-sm w-fit mb-4">
-                      <MapPin size={12} className="mr-1" />
+                    <div className="flex items-center text-teal-600 bg-teal-50 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm w-fit mb-3 sm:mb-4">
+                      <MapPin size={10} className="mr-1" />
                       <span className="truncate">
                         {story.visitedLocation.join(", ")}
                       </span>
                     </div>
 
                     {/* Actions */}
-                    <div className="flex justify-end space-x-2">
+                    <div className="flex justify-end space-x-1 sm:space-x-2">
                       <button
                         onClick={() => openModal(story)}
-                        className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        className="p-1.5 sm:p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                       >
-                        <Edit size={16} />
+                        <Edit size={14} />
                       </button>
                       <button
                         onClick={() => handleDelete(story._id)}
-                        className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        className="p-1.5 sm:p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </div>
@@ -732,8 +981,8 @@ const Home = () => {
           )}
         </div>
 
-        {/* Calendar Sidebar */}
-        <div className="w-90 p-6">
+        {/* Desktop Calendar Sidebar */}
+        <div className="hidden lg:block w-90 p-6">
           {/* Calendar Card */}
           <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 h-fit max-h-[400px]">
             {/* Calendar Header */}
@@ -816,39 +1065,39 @@ const Home = () => {
       {/* Floating Add Button */}
       <button
         onClick={() => openModal()}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center transform hover:scale-105"
+        className="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center transform hover:scale-105"
       >
-        <Plus size={24} />
+        <Plus size={20} />
       </button>
 
       {/* Modal for Create/Edit Story */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white rounded-xl w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto shadow-2xl">
             {/* Modal Header */}
-            <div className="flex justify-between items-center p-6 border-b">
-              <h2 className="text-xl font-semibold text-gray-900">
+            <div className="flex justify-between items-center p-4 sm:p-6 border-b">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
                 {isEditMode ? "Edit Story" : "Add Story"}
               </h2>
-              <div className="flex items-center space-x-4">
-                <button className="text-teal-500 hover:text-teal-600 font-medium text-sm flex items-center space-x-1">
-                  <Plus size={16} />
-                  <span>{isEditMode ? "UPDATE STORY" : "ADD STORY"}</span>
+              <div className="flex items-center space-x-2 sm:space-x-4">
+                <button className="text-teal-500 hover:text-teal-600 font-medium text-xs sm:text-sm flex items-center space-x-1">
+                  <Plus size={14} />
+                  <span className="hidden sm:inline">{isEditMode ? "UPDATE STORY" : "ADD STORY"}</span>
                 </button>
                 <button
                   onClick={() => setIsModalOpen(false)}
                   className="p-1 hover:bg-gray-100 rounded"
                 >
-                  <X size={20} />
+                  <X size={18} />
                 </button>
               </div>
             </div>
 
             {/* Modal Content */}
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
+            <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 sm:space-y-6">
               {/* Title */}
               <div>
-                <label className="block text-sm font-medium text-gray-500 mb-2 uppercase tracking-wide">
+                <label className="block text-xs sm:text-sm font-medium text-gray-500 mb-2 uppercase tracking-wide">
                   TITLE
                 </label>
                 <input
@@ -856,7 +1105,7 @@ const Home = () => {
                   name="title"
                   value={formData.title}
                   onChange={handleInputChange}
-                  className="w-full text-2xl font-semibold text-gray-900 border-0 outline-none resize-none bg-transparent"
+                  className="w-full text-xl sm:text-2xl font-semibold text-gray-900 border-0 outline-none resize-none bg-transparent"
                   placeholder="Adventure in Amazon Rainforest"
                   required
                 />
@@ -886,7 +1135,7 @@ const Home = () => {
                           : formData.imageUrl
                       }
                       alt="Preview"
-                      className="w-full h-64 object-cover"
+                      className="w-full h-48 sm:h-64 object-cover"
                       onError={(e) => (e.target.src = placeholder)}
                     />
 
@@ -899,10 +1148,10 @@ const Home = () => {
                         }}
                         className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full transition-colors"
                       >
-                        <Trash2 size={18} />
+                        <Trash2 size={16} />
                       </button>
                     </div>
-                    <div className="absolute bottom-4 left-4 right-4">
+                    <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4">
                       <input
                         type="file"
                         accept="image/*"
@@ -912,19 +1161,19 @@ const Home = () => {
                       />
                       <label
                         htmlFor="imageUpload"
-                        className="inline-block w-full px-4 py-2 bg-white/90 hover:bg-white text-gray-700 rounded-lg cursor-pointer transition-colors text-center font-medium"
+                        className="inline-block w-full px-3 sm:px-4 py-2 bg-white/90 hover:bg-white text-gray-700 rounded-lg cursor-pointer transition-colors text-center font-medium text-sm"
                       >
                         Replace Image
                       </label>
                     </div>
                   </div>
                 ) : (
-                  <div className="p-12">
+                  <div className="p-8 sm:p-12">
                     <ImageIcon
-                      size={48}
+                      size={36}
                       className="mx-auto text-gray-300 mb-4"
                     />
-                    <p className="text-gray-500 mb-4">
+                    <p className="text-gray-500 mb-4 text-sm">
                       Browse image files to upload
                     </p>
                     <input
@@ -936,7 +1185,7 @@ const Home = () => {
                     />
                     <label
                       htmlFor="imageUpload"
-                      className="inline-block px-6 py-3 bg-teal-500 hover:bg-teal-600 text-white rounded-lg cursor-pointer transition-colors font-medium"
+                      className="inline-block px-4 sm:px-6 py-2 sm:py-3 bg-teal-500 hover:bg-teal-600 text-white rounded-lg cursor-pointer transition-colors font-medium text-sm"
                     >
                       Choose File
                     </label>
@@ -946,14 +1195,14 @@ const Home = () => {
 
               {/* Story Content */}
               <div>
-                <label className="block text-sm font-medium text-gray-500 mb-2 uppercase tracking-wide">
+                <label className="block text-xs sm:text-sm font-medium text-gray-500 mb-2 uppercase tracking-wide">
                   STORY
                 </label>
                 <textarea
                   name="story"
                   value={formData.story}
                   onChange={handleInputChange}
-                  className="w-full text-gray-700 border-0 outline-none resize-none bg-transparent min-h-[120px]"
+                  className="w-full text-gray-700 border-0 outline-none resize-none bg-transparent min-h-[100px] sm:min-h-[120px] text-sm sm:text-base"
                   placeholder="Your Story"
                   required
                 />
@@ -961,7 +1210,7 @@ const Home = () => {
 
               {/* Locations */}
               <div>
-                <label className="block text-sm font-medium text-gray-500 mb-2 uppercase tracking-wide">
+                <label className="block text-xs sm:text-sm font-medium text-gray-500 mb-2 uppercase tracking-wide">
                   LOCATIONS VISITED
                 </label>
                 <input
@@ -969,7 +1218,7 @@ const Home = () => {
                   name="visitedLocation"
                   value={formData.visitedLocation}
                   onChange={handleInputChange}
-                  className="w-full text-gray-700 border-0 outline-none bg-transparent"
+                  className="w-full text-gray-700 border-0 outline-none bg-transparent text-sm sm:text-base"
                   placeholder="Amazon Rainforest, Brazil"
                   required
                 />
@@ -986,7 +1235,7 @@ const Home = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white py-3 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02]"
+                className="w-full bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white py-2.5 sm:py-3 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] text-sm sm:text-base"
               >
                 {isLoading
                   ? "Saving..."
