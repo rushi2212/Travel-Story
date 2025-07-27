@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../utils/axiosInstance";
-import  "../../assets/placeholder.png"
+import placeholder from "../../assets/placeholder.png";
 
 const Home = () => {
   const [stories, setStories] = useState([]);
@@ -666,11 +666,9 @@ const Home = () => {
                       src={story.imageUrl}
                       alt={story.title}
                       className="w-full h-full object-cover"
-                      onError={(e) =>
-                        (e.target.src =
-                          "./assets/placeholder.png")
-                      }
+                      onError={(e) => (e.target.src = placeholder)}
                     />
+
                     <button
                       onClick={() =>
                         handleFavorite(story._id, story.isFavourite)
@@ -889,11 +887,9 @@ const Home = () => {
                       }
                       alt="Preview"
                       className="w-full h-64 object-cover"
-                      onError={(e) =>
-                        (e.target.src =
-                          "./assets/placeholder.png")
-                      }
+                      onError={(e) => (e.target.src = placeholder)}
                     />
+
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <button
                         type="button"
