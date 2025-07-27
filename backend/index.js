@@ -237,7 +237,7 @@ app.post("/edit-story/:id", authenticateToken, async (req, res) => {
         .status(404)
         .json({ error: true, message: "Travel story not found" });
     }
-    const placeholderImgUrl = "http://localhost:3000/assets/placeholder.png";
+    const placeholderImgUrl = "https://travel-story-vkur.onrender.com/assets/placeholder.png";
 
     travelStory.title = title;
     travelStory.story = story;
